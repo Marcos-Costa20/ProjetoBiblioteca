@@ -17,17 +17,20 @@ namespace Biblioteca.Controllers
 
         public IActionResult editarUsuario(int id)
         {
-            Usuario u = new UsuarioService().Listar(id);
+            Autenticacao.CheckLogin(this);
+            Autenticacao.verificaSeUsuarioEAdmin(this);
 
-            return View(u);
+            return View(new UsuarioService().buscarPorId(id));
         }
 
         [HttpPost]
         public IActionResult editarUsuario(Usuario userEditado)
         {
-            UsuarioService us = new UsuarioService();
-            us.editarUsuario(userEditado);
 
+            Autenticacao.CheckLogin(this);
+            Autenticacao.verificaSeUsuarioEAdmin(this);
+
+            new UsuarioService().editarUsuario(userEditado);
             return RedirectToAction("ListaDeUsuarios");
         }
 
@@ -45,9 +48,8 @@ namespace Biblioteca.Controllers
             Autenticacao.verificaSeUsuarioEAdmin(this);
 
             novoUser.senha = Criptografo.TextoCriptografado(novoUser.senha);
+            new UsuarioService().incluirUsuario(novoUser);
 
-            UsuarioService us = new UsuarioService();
-            us.incluirUsuario(novoUser);
 
             return RedirectToAction("cadastroRealizado");
 
@@ -55,7 +57,12 @@ namespace Biblioteca.Controllers
 
         public IActionResult ExcluirUsuario(int id)
         {
-            return View(new UsuarioService().Listar(id));
+
+            Autenticacao.CheckLogin(this);
+            Autenticacao.verificaSeUsuarioEAdmin(this);
+
+            new UsuarioService().excluirUsuario(id);
+             return RedirectToAction("ListaDeUsuarios");
         }
 
         [HttpPost]
@@ -63,7 +70,7 @@ namespace Biblioteca.Controllers
         {
             if(decisao=="Excluir")
             {
-                ViewData["Mensagem"] = "Exclusão do usuario "+new UsuarioService().Listar(id).Nome+"realizada com sucesso";
+                ViewData["Mensagem"] = "Exclusão do usuario "+new UsuarioService().buscarPorId(id).Nome+"realizada com sucesso";
                 new UsuarioService().excluirUsuario(id);
                 return View("ListaDeUsuarios",new UsuarioService().Listar());
             }

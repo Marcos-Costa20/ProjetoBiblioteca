@@ -10,36 +10,37 @@ namespace Biblioteca.Models
         {
             using(BibliotecaContext bc = new BibliotecaContext())
             {
-                return bc.usuarios.ToList();
+                return bc.Usuarios.ToList();
             }
         }
 
-        public Usuario Listar( int id)
+        public void incluirUsuario(Usuario user)
         {
             using(BibliotecaContext bc = new BibliotecaContext())
             {
-                return bc.usuarios.Find(id);
-            }
-        }
-
-        public void incluirUsuario( Usuario novoUser)
-        {
-            using(BibliotecaContext bc = new BibliotecaContext())
-            {
-                bc.Add(novoUser);
+                bc.Usuarios.Add(user);
                 bc.SaveChanges();
             }
         }
 
         public void editarUsuario(Usuario userEditado)
         {
-             using(BibliotecaContext bc = new BibliotecaContext())
+            using(BibliotecaContext bc = new BibliotecaContext())
             {
-               Usuario u = bc.usuarios.Find(userEditado.Id);
+               Usuario u = bc.Usuarios.Find(userEditado.Id);
 
-               u.login = userEditado.login;
                u.Nome = userEditado.Nome;
-               u.senha = userEditado.senha;
+               u.login = userEditado.login;
+
+               if(u.senha !=userEditado.senha)
+               {
+                u.senha = Criptografo.TextoCriptografado(userEditado.senha);
+               }
+               else
+               {
+                    u.senha = userEditado.senha;
+               }
+           
                u.tipo = userEditado.tipo;
 
                bc.SaveChanges();
@@ -50,11 +51,19 @@ namespace Biblioteca.Models
         {
              using(BibliotecaContext bc = new BibliotecaContext())
             {
-                bc.usuarios.Remove(bc.usuarios.Find(id));
+                bc.Usuarios.Remove(bc.Usuarios.Find(id));
                 bc.SaveChanges();
             }
         }
 
+        public Usuario buscarPorId (int id)
+        {
+            using(BibliotecaContext bc = new BibliotecaContext())
+            {
+                return bc.Usuarios.Find(id);
+            }
+        }     
+             
 
         
     }
